@@ -16,9 +16,6 @@ set(STANDALONE_TEST_DEPENDS
         standalone-translate
         StandalonePlugin
         )
-if(MLIR_ENABLE_BINDINGS_PYTHON)
-  list(APPEND STANDALONE_TEST_DEPENDS StandalonePythonModules)
-endif()
 
 add_lit_testsuite(check-standalone "Running the standalone regression tests"
         ${CMAKE_CURRENT_BINARY_DIR}

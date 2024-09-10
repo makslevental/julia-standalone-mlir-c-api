@@ -4,11 +4,11 @@ set -eux -o errtrace
 
 this_dir="$(cd $(dirname $0) && pwd)"
 repo_root="$(cd $this_dir && pwd)"
-llvm_dir="$(cd $repo_root/llvm-project/llvm && pwd)"
-build_dir="$repo_root/llvm-build"
-install_dir="$repo_root/llvm-install"
+standalone_dir="$(cd $repo_root/standalone && pwd)"
+build_dir="$repo_root/standalone-build"
 mkdir -p "$build_dir"
 build_dir="$(cd $build_dir && pwd)"
+llvm_install_dir="${llvm_install_dir:-}"
 cache_dir="${cache_dir:-}"
 
 if [ -z "${cache_dir}" ]; then
@@ -36,35 +36,17 @@ ccache -z
 cmake \
   -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=$install_dir \
-  -DLLVM_ENABLE_ASSERTIONS=ON \
-  -DLLVM_ENABLE_BINDINGS=OFF \
-  -DLLVM_ENABLE_LIBEDIT=OFF \
-  -DLLVM_ENABLE_LIBXML2=OFF \
-  -DLLVM_ENABLE_PROJECTS=mlir \
-  -DLLVM_ENABLE_TERMINFO=OFF \
-  -DLLVM_ENABLE_ZLIB=OFF \
-  -DLLVM_ENABLE_ZSTD=OFF \
-  -DLLVM_INCLUDE_BENCHMARKS=OFF \
-  -DLLVM_INCLUDE_EXAMPLES=OFF \
-  -DLLVM_INCLUDE_TESTS=OFF \
-  -DLLVM_TARGETS_TO_BUILD=X86 \
-  -DLLVM_TARGET_ARCH=X86 \
-  -DLLVM_BUILD_UTILS=ON \
-  -DLLVM_INSTALL_UTILS=ON \
-  \
-  -DLLVM_BUILD_LLVM_DYLIB=ON \
-  -DLLVM_LINK_LLVM_DYLIB=ON \
-  -DMLIR_BUILD_MLIR_C_DYLIB=ON \
-  -DMLIR_LINK_MLIR_DYLIB=ON \
-  \
-  -S $llvm_dir -B $build_dir
+  -DCMAKE_PREFIX_PATH=$llvm_install_dir \
+  -DLLVM_EXTERNAL_LIT=$(which lit) \
+  -DBUILD_SHARED_LIBS=ON \
+  -S $standalone_dir -B $build_dir
 
 echo "Building all"
 echo "------------"
 cmake --build "$build_dir" -- -k 0
 
-echo "Installing"
+echo "Testing"
 echo "----------"
-echo "Install to: $install_dir"
-cmake --build "$build_dir" --target install
+cmake --build "$build_dir" --target check-standalone
+
+find standalone-build -name *.a
