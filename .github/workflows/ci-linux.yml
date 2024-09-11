@@ -21,6 +21,7 @@ jobs:
       CACHE_DIR: ${{ github.workspace }}/.container-cache
       # either the PR number or `branch-N` where N always increments
       CACHE_KEY: linux-build-test-cpp-asserts-manylinux-v2-${{ format('{0}-{1}', github.ref_name, github.run_number) }}
+      ASAN_OPTIONS: detect_leaks=0,detect_odr_violation=1
     steps:
       - name: Set unified TZ
         uses: szenius/set-timezone@v2.0
@@ -58,26 +59,45 @@ jobs:
           key:  ${{ env.CACHE_KEY }}
           restore-keys: linux-build-test-cpp-
 
+      - name: Hack/patch llvm
+        run: |
+          git apply \
+            --ignore-space-change \
+            --ignore-whitespace \
+            --verbose \
+            --directory \
+            llvm-project llvm-libmlir-c-link-libmlir.patch
+
       - name: Build packages
         run: |
           export cache_dir="${{ env.CACHE_DIR }}"
-          export CCACHE_COMPILERCHECK="string:$(clang --version)"
           bash build_llvm.sh
           export llvm_install_dir=$PWD/llvm-install
           bash build_test_standalone.sh
           
       - name: Double check dylibs and static archives
         run: |
-          echo "find:"
-          find standalone-build -name *.a
-          find standalone-build -name *.so
-          
-          echo "ldd:"
+          echo "ldd standalone-opt:"
           ldd standalone-build/bin/standalone-opt
+          echo "ldd standalone-opt-capi-test:"
           ldd standalone-build/bin/standalone-capi-test
+          echo "ldd standalone-translate:"
           ldd standalone-build/bin/standalone-translate
 
+          echo "find:"
+          for so in $(find standalone-build -name *.so); do 
+            echo "ldd $so:"
+            ldd $so; 
+          done
+
+          echo "nm:"
+          for so in $(find standalone-build -name *.so); do 
+            echo "nm $so:"
+            nm -gDC $so; 
+          done
+
       - name: Save cache
+        if: ${{ !cancelled() }}
         uses: actions/cache/save@v3
         with:
           path: ${{ env.CACHE_DIR }}

@@ -23,8 +23,9 @@ mkdir -p "${cache_dir}/pip"
 python="$(which python)"
 echo "Using python: $python"
 
-export CC=clang
-export CXX=clang++
+export CC="${CC:-clang}"
+export CXX="${CXX:-clang++}"
+export CCACHE_COMPILERCHECK="string:$(clang --version)"
 export CCACHE_DIR="${cache_dir}/ccache"
 export CCACHE_MAXSIZE="700M"
 export CMAKE_C_COMPILER_LAUNCHER=ccache
@@ -37,9 +38,12 @@ cmake \
   -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=$install_dir \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DLLVM_ENABLE_ASSERTIONS=ON \
   -DLLVM_ENABLE_BINDINGS=OFF \
   -DLLVM_ENABLE_LIBEDIT=OFF \
+  -DLLVM_ENABLE_LLD=ON \
   -DLLVM_ENABLE_LIBXML2=OFF \
   -DLLVM_ENABLE_PROJECTS=mlir \
   -DLLVM_ENABLE_TERMINFO=OFF \
@@ -47,11 +51,15 @@ cmake \
   -DLLVM_ENABLE_ZSTD=OFF \
   -DLLVM_INCLUDE_BENCHMARKS=OFF \
   -DLLVM_INCLUDE_EXAMPLES=OFF \
-  -DLLVM_INCLUDE_TESTS=OFF \
+  -DLLVM_INCLUDE_TESTS=ON \
+  -DMLIR_INCLUDE_TESTS=ON \
+  -DLLVM_USE_SANITIZER="Address" \
   -DLLVM_TARGETS_TO_BUILD=X86 \
   -DLLVM_TARGET_ARCH=X86 \
   -DLLVM_BUILD_UTILS=ON \
   -DLLVM_INSTALL_UTILS=ON \
+  -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
+  -DPython3_EXECUTABLE=$(which python) \
   \
   -DLLVM_BUILD_LLVM_DYLIB=ON \
   -DLLVM_LINK_LLVM_DYLIB=ON \
@@ -62,9 +70,16 @@ cmake \
 
 echo "Building all"
 echo "------------"
-cmake --build "$build_dir" -- -k 0
+cmake --build "$build_dir" -- -k 1
 
 echo "Installing"
 echo "----------"
 echo "Install to: $install_dir"
 cmake --build "$build_dir" --target install
+
+
+echo "Testing"
+echo "----------"
+cmake --build "$build_dir" --target check-mlir
+
+ccache -sv

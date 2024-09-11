@@ -1,3 +1,4 @@
 .build-cache
 llvm-build
 llvm-install
+standalone-build

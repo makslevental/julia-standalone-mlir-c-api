@@ -23,8 +23,8 @@ mkdir -p "${cache_dir}/pip"
 python="$(which python)"
 echo "Using python: $python"
 
-export CC=clang
-export CXX=clang++
+export CC="${CC:-clang}"
+export CXX="${CXX:-clang++}"
 export CCACHE_DIR="${cache_dir}/ccache"
 export CCACHE_MAXSIZE="700M"
 export CMAKE_C_COMPILER_LAUNCHER=ccache
@@ -38,6 +38,8 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH=$llvm_install_dir \
   -DLLVM_EXTERNAL_LIT=$(which lit) \
+  -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
+  -DPython3_EXECUTABLE=$(which python) \
   -DBUILD_SHARED_LIBS=ON \
   -S $standalone_dir -B $build_dir
 

@@ -1,0 +1,38 @@
+diff --git a/mlir/cmake/modules/AddMLIR.cmake b/mlir/cmake/modules/AddMLIR.cmake
+index a3324705c..700a8de26 100644
+--- a/mlir/cmake/modules/AddMLIR.cmake
++++ b/mlir/cmake/modules/AddMLIR.cmake
+@@ -410,7 +410,11 @@ function(add_mlir_library name)
+     # which excludes it if the ultimate link target is excluding the library.
+     set(NEW_LINK_LIBRARIES)
+     get_target_property(CURRENT_LINK_LIBRARIES  ${name} LINK_LIBRARIES)
+-    get_mlir_filtered_link_libraries(NEW_LINK_LIBRARIES ${CURRENT_LINK_LIBRARIES})
++    if(MLIR_LINK_MLIR_DYLIB)
++      set(NEW_LINK_LIBRARIES "MLIR;MLIRExecutionEngineShared")
++    else()
++      get_mlir_filtered_link_libraries(NEW_LINK_LIBRARIES ${CURRENT_LINK_LIBRARIES})
++    endif()
+     set_target_properties(${name} PROPERTIES LINK_LIBRARIES "${NEW_LINK_LIBRARIES}")
+     list(APPEND AGGREGATE_DEPS ${NEW_LINK_LIBRARIES})
+     set_target_properties(${name} PROPERTIES
+diff --git a/mlir/test/python/lib/CMakeLists.txt b/mlir/test/python/lib/CMakeLists.txt
+index d7cbbfbc2..a3000662c 100644
+--- a/mlir/test/python/lib/CMakeLists.txt
++++ b/mlir/test/python/lib/CMakeLists.txt
+@@ -7,15 +7,11 @@ set(LLVM_OPTIONAL_SOURCES
+ add_mlir_library(MLIRPythonTestDialect
+   PythonTestDialect.cpp
+ 
+-  EXCLUDE_FROM_LIBMLIR
+-
+   DEPENDS
+   MLIRPythonTestIncGen
+ 
+   LINK_LIBS PUBLIC
+-  MLIRInferTypeOpInterface
+-  MLIRIR
+-  MLIRSupport
++  MLIR
+ )
+ 
+ add_mlir_public_c_api_library(MLIRCAPIPythonTestDialect
