@@ -1,5 +1,5 @@
 diff --git a/mlir/cmake/modules/AddMLIR.cmake b/mlir/cmake/modules/AddMLIR.cmake
-index a3324705c..700a8de26 100644
+index a3324705c..bcc4d4e33 100644
 --- a/mlir/cmake/modules/AddMLIR.cmake
 +++ b/mlir/cmake/modules/AddMLIR.cmake
 @@ -410,7 +410,11 @@ function(add_mlir_library name)
@@ -8,31 +8,36 @@ index a3324705c..700a8de26 100644
      get_target_property(CURRENT_LINK_LIBRARIES  ${name} LINK_LIBRARIES)
 -    get_mlir_filtered_link_libraries(NEW_LINK_LIBRARIES ${CURRENT_LINK_LIBRARIES})
 +    if(MLIR_LINK_MLIR_DYLIB)
-+      set(NEW_LINK_LIBRARIES "MLIR;MLIRExecutionEngineShared")
++      set(NEW_LINK_LIBRARIES "LLVM;MLIR;MLIRExecutionEngineShared")
 +    else()
 +      get_mlir_filtered_link_libraries(NEW_LINK_LIBRARIES ${CURRENT_LINK_LIBRARIES})
 +    endif()
      set_target_properties(${name} PROPERTIES LINK_LIBRARIES "${NEW_LINK_LIBRARIES}")
      list(APPEND AGGREGATE_DEPS ${NEW_LINK_LIBRARIES})
      set_target_properties(${name} PROPERTIES
+diff --git a/mlir/test/lit.cfg.py b/mlir/test/lit.cfg.py
+index f0d4f35ba..6c18bb6d7 100644
+--- a/mlir/test/lit.cfg.py
++++ b/mlir/test/lit.cfg.py
+@@ -177,7 +177,7 @@ python_executable = config.python_executable
+ # Python configuration with sanitizer requires some magic preloading. This will only work on clang/linux.
+ # TODO: detect Darwin/Windows situation (or mark these tests as unsupported on these platforms).
+ if "asan" in config.available_features and "Linux" in config.host_os:
+-    python_executable = f"LD_PRELOAD=$({config.host_cxx} -print-file-name=libclang_rt.asan-{config.host_arch}.so) {config.python_executable}"
++    python_executable = f"LD_PRELOAD=\"$({config.host_cxx.strip()} -print-file-name=libclang_rt.asan-{config.host_arch}.so)\" {config.python_executable}"
+ # On Windows the path to python could contains spaces in which case it needs to be provided in quotes.
+ # This is the equivalent of how %python is setup in llvm/utils/lit/lit/llvm/config.py.
+ elif "Windows" in config.host_os:
 diff --git a/mlir/test/python/lib/CMakeLists.txt b/mlir/test/python/lib/CMakeLists.txt
-index d7cbbfbc2..a3000662c 100644
+index d7cbbfbc2..bee685c9b 100644
 --- a/mlir/test/python/lib/CMakeLists.txt
 +++ b/mlir/test/python/lib/CMakeLists.txt
-@@ -7,15 +7,11 @@ set(LLVM_OPTIONAL_SOURCES
+@@ -7,8 +7,6 @@ set(LLVM_OPTIONAL_SOURCES
  add_mlir_library(MLIRPythonTestDialect
    PythonTestDialect.cpp
  
-   EXCLUDE_FROM_LIBMLIR
- 
+-  EXCLUDE_FROM_LIBMLIR
+-
    DEPENDS
    MLIRPythonTestIncGen
  
-   LINK_LIBS PUBLIC
--  MLIRInferTypeOpInterface
--  MLIRIR
--  MLIRSupport
-+  MLIR
- )
- 
- add_mlir_public_c_api_library(MLIRCAPIPythonTestDialect
