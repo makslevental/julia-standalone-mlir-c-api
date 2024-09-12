@@ -23,8 +23,8 @@ index d7cbbfbc2..a3000662c 100644
  add_mlir_library(MLIRPythonTestDialect
    PythonTestDialect.cpp
  
--  EXCLUDE_FROM_LIBMLIR
--
+   EXCLUDE_FROM_LIBMLIR
+ 
    DEPENDS
    MLIRPythonTestIncGen
  
