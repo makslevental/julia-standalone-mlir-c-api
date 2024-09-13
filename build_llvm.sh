@@ -82,4 +82,4 @@ echo "Testing"
 echo "----------"
 cmake --build "$build_dir" --target check-mlir || true
 
-ccache -sv
+ccache -s
