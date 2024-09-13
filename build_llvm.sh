@@ -32,6 +32,7 @@ export CMAKE_C_COMPILER_LAUNCHER=ccache
 export CMAKE_CXX_COMPILER_LAUNCHER=ccache
 export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime,time_macros
 
+ccache -p
 ccache -z
 
 cmake \
