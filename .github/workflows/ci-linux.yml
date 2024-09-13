@@ -110,9 +110,9 @@ jobs:
           path: ${{ env.CACHE_DIR }}
           key: ${{ env.CACHE_KEY }}
 
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3.18
-        with:
-          limit-access-to-actor: true
-          install-dependencies: true
+      # - name: Setup tmate session
+      #   if: ${{ failure() }}
+      #   uses: mxschmitt/action-tmate@v3.18
+      #   with:
+      #     limit-access-to-actor: true
+      #     install-dependencies: true
