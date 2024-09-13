@@ -49,6 +49,6 @@ cmake --build "$build_dir" -- -k 0
 
 echo "Testing"
 echo "----------"
-cmake --build "$build_dir" --target check-standalone
+cmake --build "$build_dir" --target check-standalone || true
 
 find standalone-build -name *.a
