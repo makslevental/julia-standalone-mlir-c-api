@@ -43,8 +43,14 @@ jobs:
           compiler: llvm
           cmake: true
           ninja: true
-          ccache: true
-
+          ccache: false
+          
+      - name: Get ccache 4.9
+        run: |
+          wget --quiet https://github.com/ccache/ccache/releases/download/v4.9/ccache-4.9-linux-x86_64.tar.xz
+          tar -xf ccache-4.9-linux-x86_64.tar.xz
+          pushd ccache-4.9-linux-x86_64 && sudo make install && popd
+          
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
