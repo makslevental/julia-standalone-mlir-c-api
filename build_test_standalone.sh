@@ -38,6 +38,7 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH=$llvm_install_dir \
   -DLLVM_EXTERNAL_LIT=$(which lit) \
+  -DLLVM_USE_SANITIZER="Address" \
   -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
   -DPython3_EXECUTABLE=$(which python) \
   -DBUILD_SHARED_LIBS=ON \
