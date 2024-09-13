@@ -25,7 +25,7 @@ echo "Using python: $python"
 
 export CC="${CC:-clang}"
 export CXX="${CXX:-clang++}"
-# export CCACHE_COMPILERCHECK="string:$(clang --version)"
+export CCACHE_COMPILERCHECK="string:$($CC --version)"
 export CCACHE_DIR="${cache_dir}/ccache"
 export CCACHE_MAXSIZE="700M"
 export CMAKE_C_COMPILER_LAUNCHER=ccache
