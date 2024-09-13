@@ -31,7 +31,17 @@ jobs:
           timezoneLinux: "Asia/Singapore"
           timezoneMacos: "Asia/Singapore"
           timezoneWindows: "Singapore Standard Time"
-
+            
+      - name: Free disk space
+        uses: descriptinc/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: false # This frees space on the wrong partition.
+          
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
