@@ -62,3 +62,4 @@ add_mlir_python_modules(StandalonePythonModules
   COMMON_CAPI_LINK_LIBS
     StandalonePythonCAPI
   )
+

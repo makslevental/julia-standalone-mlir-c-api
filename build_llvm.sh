@@ -41,8 +41,13 @@ cmake \
   -DCMAKE_INSTALL_PREFIX=$install_dir \
   -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+  -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+  -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+  -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+  \
   -DLLVM_ENABLE_ASSERTIONS=ON \
   -DLLVM_ENABLE_BINDINGS=OFF \
+  -DLLVM_ENABLE_LTO=OFF \
   -DLLVM_ENABLE_LIBEDIT=OFF \
   -DLLVM_ENABLE_LLD=ON \
   -DLLVM_ENABLE_LIBXML2=OFF \
@@ -82,5 +87,7 @@ cmake --build "$build_dir" --target install
 echo "Testing"
 echo "----------"
 cmake --build "$build_dir" --target check-mlir || true
+
+cp -r "$llvm_dir/utils/lit" "$install_dir/bin"
 
 ccache -s

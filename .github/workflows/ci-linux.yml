@@ -90,7 +90,7 @@ jobs:
           export cache_dir="${{ env.CACHE_DIR }}"
           bash build_llvm.sh
           echo llvm_install_dir="$PWD/llvm-install" >> $GITHUB_ENV
-          tar cf llvm-dist-linux.tar $llvm_install_dir
+          tar cf llvm-dist-linux.tar llvm-install
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

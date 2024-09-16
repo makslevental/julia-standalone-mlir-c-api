@@ -37,16 +37,22 @@ cmake \
   -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_PREFIX_PATH=$llvm_install_dir \
-  -DLLVM_EXTERNAL_LIT=$(which lit) \
-  -DLLVM_USE_SANITIZER="Address" \
+  -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+  -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+  -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" \
+  \
+  -DLLVM_EXTERNAL_LIT="$llvm_install_dir/bin/lit/lit.py" \
+  -DLLVM_USE_SANITIZER=Address \
+  -DLLVM_ENABLE_LTO=OFF \
+  -DCMAKE_EXE_LINKER_FLAGS=-shared-libasan \
+  -DCMAKE_SHARED_LINKER_FLAGS=-shared-libasan \
   -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
   -DPython3_EXECUTABLE=$(which python) \
-  -DBUILD_SHARED_LIBS=ON \
   -S $standalone_dir -B $build_dir
 
 echo "Building all"
 echo "------------"
-cmake --build "$build_dir" --target install -- -k 0
+cmake --build "$build_dir" -- -k 0
 
 echo "Testing"
 echo "----------"
