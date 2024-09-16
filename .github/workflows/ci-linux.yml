@@ -85,11 +85,23 @@ jobs:
             --directory \
             llvm-project llvm-libmlir-c-link-libmlir.patch
 
-      - name: Build packages
+      - name: Build LLVM
         run: |
           export cache_dir="${{ env.CACHE_DIR }}"
           bash build_llvm.sh
-          export llvm_install_dir=$PWD/llvm-install
+          echo llvm_install_dir="$PWD/llvm-install" >> $GITHUB_ENV
+          tar cf llvm-dist-linux.tar $llvm_install_dir
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: linux_x86_64_llvm_packages
+          path: llvm-dist-linux.tar
+          if-no-files-found: warn
+
+      - name: Build package
+        run: |
           bash build_test_standalone.sh
           
       - name: Double check dylibs and static archives
