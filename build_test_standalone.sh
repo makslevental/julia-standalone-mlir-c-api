@@ -46,7 +46,7 @@ cmake \
 
 echo "Building all"
 echo "------------"
-cmake --build "$build_dir" -- -k 0
+cmake --build "$build_dir" --target install -- -k 0
 
 echo "Testing"
 echo "----------"
